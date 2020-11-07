@@ -1,6 +1,7 @@
 var express = require('express')
 const session = require('express-session') 
 var port = process.env.PORT || '3000'
+console.log(port)
 var app = require('express')()
 var http = require('http').Server(app)
 var io = require('socket.io').listen(http)
