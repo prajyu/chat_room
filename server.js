@@ -1,10 +1,8 @@
 var express = require('express')
 const session = require('express-session') 
-var app = require('express')()
-var http = require('http').Server(app)
+var app = require('express')
 var io = require('socket.io').listen(http)
 var bcrypt = require('bcrypt')
-http.listen(5678)
 var authenticated = false
 var value =[]
 var rooms =[]
