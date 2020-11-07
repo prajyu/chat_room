@@ -1,10 +1,12 @@
 var express = require('express')
 const session = require('express-session') 
-var app = require('express')
-app.listen(3000)
+var port = process.env.PORT || '3000'
+var app = require('express')()
+var http = require('http').Server(app)
 var io = require('socket.io').listen(http)
 var bcrypt = require('bcrypt')
 var authenticated = false
+http.listen(port)
 var value =[]
 var rooms =[]
 var sessions =[]
