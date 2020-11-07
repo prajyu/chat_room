@@ -24,11 +24,11 @@ cleanCount =function(array,deleteValue) {
 
 app.use(express.urlencoded({extended:true}));
 app.use(session({
-    secret: 'My key',
+    secret: '90d3cede6fe59d0e889acd74b9599204',
     resave: true,
     saveUninitialized: true
 })) 
-app.get('/', function (req, res) {
+app.get('/', function (req, res){
   res.sendFile(__dirname + '/Static/Login.html')
 });
 
@@ -65,10 +65,16 @@ app.post('/register',async (req,res)=>{
   var data = req.body
   var password = await bcrypt.hash(data.passwd,10)
   var username = await bcrypt.hash(data.username,10)
-  var jdata = {'id':data.username,'users':{'username':username,'password':password},'authenticated':false}
+  if(!value.includes(data.username)){
+    var jdata = {'id':data.username,'users':{'username':username,'password':password},'authenticated':false}
   value.push(jdata)
   res.statusCode = 201
   res.redirect(302,'/')
+  }else{
+    res.statusCode = 409
+    res.redirect(301,'/')
+  }
+  
 })
 
 app.get('/createuser',(req,res) =>{
