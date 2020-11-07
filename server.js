@@ -8,7 +8,6 @@ var io = require('socket.io').listen(http)
 var bcrypt = require('bcrypt')
 var authenticated = false
 http.listen(port)
-var value =[]
 var rooms =[]
 var sessions =[]
 var roomdata =[]
@@ -28,57 +27,32 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 })) 
-app.get('/', function (req, res){
-  res.sendFile(__dirname + '/Static/Login.html')
-});
 
-app.get('/authenticate',(req,ress)=>{
-  if(req.query.username == '' ||req.query.passwd == ''){
-    ress.redirect(301,'/')
-  }
-  let result = value.filter(o => o.id == req.query.username)
-  if(result.length > 0){
-    for(x in result){
-      bcrypt.compare(req.query.username,result[x].users.username,(err,res)=>{
-        if(res){
-          bcrypt.compare(req.query.passwd,result[x].users.password,(err,res)=>{
-            if(res){
-              ress.statusCode = 200
-              req.session.name = req.query.username
-              ress.redirect(302,'/room')
-              result[x].authenticated = true
-            }else{
-              ress.statusCode = 403
-              ress.redirect(403,'/?name='+encodeURIComponent(req.query.username))
-            }
-          })
-        }
-      })
+
+app.get('/',(req,res)=>{
+  res.sendFile(__dirname+'/Static/Create.html')
+})
+
+app.post('/name',(req,res)=>{
+  if(typeof req.body.username !== undefined){
+    var result = sessions.filter(o =>{
+    return o.name == req.body.username && o.session == req.sessionID})
+    var names = sessions.filter(o =>{
+    return o.name == req.body.username})
+    console.log(result)
+    if(result.length > 0){
+      req.session.name = req.body.username
+      res.redirect('/room')
+    }else if(names.length == 0){
+      req.session.name = req.body.username
+      res.redirect('/room')
+    }else{
+      res.redirect('/')
     }
   }else{
-    ress.statusCode = 404
-    ress.redirect(301,'/?name='+encodeURIComponent(req.query.username))
-  }
-})
-
-app.post('/register',async (req,res)=>{
-  var data = req.body
-  var password = await bcrypt.hash(data.passwd,10)
-  var username = await bcrypt.hash(data.username,10)
-  if(!value.includes(data.username)){
-    var jdata = {'id':data.username,'users':{'username':username,'password':password},'authenticated':false}
-  value.push(jdata)
-  res.statusCode = 201
-  res.redirect(302,'/')
-  }else{
-    res.statusCode = 409
-    res.redirect(301,'/')
+    res.redirect('/')
   }
   
-})
-
-app.get('/createuser',(req,res) =>{
-  res.sendFile(__dirname+'/Static/Create/Create.html')
 })
 
 app.get('/room',(req,res)=>{
@@ -90,7 +64,7 @@ app.get('/room',(req,res)=>{
   }
   var name = req.session.name
   var results = sessions.filter(o => o.session == req.sessionID && o.name == req.session.name)
-  if(results.length > 0  && results.filter(o =>o.name == name).length>0){
+  if(results.length > 0){
     res.sendFile(__dirname+'/Rooms/Index.html')
   }
 })
