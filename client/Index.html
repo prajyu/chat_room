@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="" content="">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="/client/style.css" type="text/css" media="all" />
+  </head>
+  <body>
+    <div id="message-container">
+      <div id="Room-tools">
+        <input type="button" name="disconnect-btn" id="disconnect-btn" value="Disconnect" />
+        <input type="button" name="reconnect-btn" id="reconnect-btn" value="Reconnect" />
+        <p id="tools"></p>
+      </div>
+      <div id="message-recv-container"></div>
+      <div id="message-send-container">
+        <form id="message-form" action="" method="get" accept-charset="utf-8">
+          <input type="text" name="message-txt" id="message-txt" autocomplete="off" placeholder="Type Your Message" value="" />
+          <input type="submit" name="message-submit" id="message-submit" value="send" />
+        </form>
+      </div>
+    </div>
+   <script  src="/socket.io/socket.io.js"></script> 
+    <script src="/client/script.js"></script>
+  </body>
+</html>
