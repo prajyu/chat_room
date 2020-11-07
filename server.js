@@ -39,7 +39,6 @@ app.post('/name',(req,res)=>{
     return o.name == req.body.username && o.session == req.sessionID})
     var names = sessions.filter(o =>{
     return o.name == req.body.username})
-    console.log(result)
     if(result.length > 0){
       req.session.name = req.body.username
       res.redirect('/room')
@@ -70,8 +69,18 @@ app.get('/room',(req,res)=>{
 })
 
 app.get('/chat',(req,ress) =>{
+  var result = roomdata.filter(value=>{
+    return value.roomname == req.query.room
+  })
+  var check = false
+  console.log(result)
+  if(result.length >0){
+    check = result[0].users.filter(value =>{
+      return value.name == req.session.name
+    })
+  }
   var results = sessions.filter(o => o.session== req.sessionID && o.name == req.session.name)
-  if(results.length > 0 && results.filter(o => o.name == req.query.name).length > 0 && rooms.includes(req.query.room)){
+  if(results.length > 0 && results.filter(o => o.name == req.query.name).length > 0 && rooms.includes(req.query.room) && check.length ==0){
     ress.sendFile(__dirname+'/client/Index.html')
   }
 })
@@ -91,8 +100,20 @@ app.post('/create',(req,res)=>{
 
 app.get('/join/:room',(req,ress)=>{
   var room = req.params.room
+  var name = req.session.name
+  var result = roomdata.filter(value=>{
+    return value.roomname == room
+  })
+  var check = false
+  console.log(result)
+  if(result.length >0){
+    check = result[0].users.filter(value =>{
+      return value.name == name
+    })
+  }
   if(rooms.includes(room)){
-    var name = req.session.name
+    if(check.length ==0){
+      var name = req.session.name
   var results = sessions.filter(o => o.session == req.sessionID && o.name == req.session.name)
   if(results.length > 0  && results.filter(o =>o.name == name).length>0){
     ress.statusCode = 200
@@ -101,6 +122,11 @@ app.get('/join/:room',(req,ress)=>{
     ress.statusCode = 200
     ress.redirect(302,'/chat/?room='+encodeURIComponent(room)+'&name='+encodeURIComponent(name))
   }
+    }else{
+      ress.statusCode =403
+      ress.redirect(301,'/room')
+    }
+    
   }else{
     ress.statusCode = 404
     ress.redirect(301,'/room')
@@ -164,13 +190,9 @@ io.on('connection',socket => {
         lrooms[0].count--
         lrooms[0].users.splice(lrooms[0].users.indexOf(result[0]))
         socket.to(socket.room).emit('disconnected-client',result[0].name,lrooms[0].count)
-        console.log(lrooms[0].online)
-        console.log(lrooms[0].count)
         if(lrooms[0].online == true && lrooms[0].count == 0){
           cleanCount(roomdata,0)
           rooms.splice(rooms.indexOf(socket.room))
-          console.log(roomdata)
-          console.log(rooms)
           }
         }
       }

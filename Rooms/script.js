@@ -49,7 +49,6 @@ function add(name){
   a.href = '/join/'+encodeURIComponent(name)
   a.innerText = name
   li.className = 'Room'
-  a.className = 'Room'
   li.appendChild(a)
   ul.appendChild(li)
 }
@@ -76,4 +75,12 @@ socket.on('list',data=>{
       add(data[e])
     }
   }
+  var rlist = document.getElementsByClassName('list')
+  var nodes = rlist.childNodes
+  for(e in nodes){
+    if(!value.includes(nodes[e].innerText)){
+      alert(nodes[e])
+      rlist.removeChild(nodes[e])
+    }
+  }
 })
